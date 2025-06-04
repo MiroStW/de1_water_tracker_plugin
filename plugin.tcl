@@ -1,5 +1,4 @@
-# Water Tracker Plugin
-set plugin_name "water_tracker"
+set plugin_name "de1_water_tracker_plugin"
 
 namespace eval ::plugins::${plugin_name} {
 
@@ -7,7 +6,7 @@ namespace eval ::plugins::${plugin_name} {
     variable contact "Github"
     variable version 0.1
     variable description "Track total water usage to help schedule filter changes."
-    variable name "Water Tracker"
+    variable name "Water Usage Tracker"
     variable settings
 
     proc build_ui {} {
@@ -30,8 +29,11 @@ namespace eval ::plugins::${plugin_name} {
             -label [translate "Filter change date"] -label_pos {1280 700} \
             -label_font Helv_10_bold -label_width 1200 -label_fill "#444444" -label_anchor center
 
-        add_de1_text $page_name 1280 900 -text [translate "Reset Counter"] -font Helv_10_bold -fill "#4e85f4" -anchor "center"
-        add_de1_button $page_name ::plugins::water_tracker::reset_counter 980 870 1580 970 ""
+        dui add dcheckbox $page_name 1280 860 -tags use_gallons -textvariable ::plugins::water_tracker::settings(use_gallons) -fill "#444444" \
+            -label [translate "Display in gallons"] -label_font Helv_10_bold -label_fill #4e85f4 -command ::plugins::water_tracker::toggle_units
+
+        add_de1_text $page_name 1280 1000 -text [translate "Reset Counter"] -font Helv_10_bold -fill "#4e85f4" -anchor "center"
+        add_de1_button $page_name ::plugins::water_tracker::reset_counter 980 970 1580 1070 ""
 
         return $page_name
     }
@@ -42,7 +44,14 @@ namespace eval ::plugins::${plugin_name} {
         if {$date_text eq ""} {
             set date_text [translate "Unknown"]
         }
-        set settings(display) [format [translate "Total water used: %.0f mL\nFilter changed: %s"] $settings(total_volume) $date_text]
+        if {[info exists settings(use_gallons)] && $settings(use_gallons)} {
+            set value [expr {$settings(total_volume) / 3785.41}]
+            set units "gal"
+        } else {
+            set value [expr {$settings(total_volume) / 1000.0}]
+            set units "L"
+        }
+        set settings(display) [format [translate "Total water used: %.2f %s\nFilter changed: %s"] $value $units $date_text]
     }
 
     proc reset_counter {} {
@@ -52,6 +61,11 @@ namespace eval ::plugins::${plugin_name} {
         save_plugin_settings $::plugins::water_tracker::plugin_name
         update_display
         popup [translate "Counter reset"]
+    }
+
+    proc toggle_units {} {
+        save_plugin_settings $::plugins::water_tracker::plugin_name
+        update_display
     }
 
     proc on_state_change {event_dict} {
@@ -81,10 +95,13 @@ namespace eval ::plugins::${plugin_name} {
     proc main {} {
         variable settings
         if {[array size settings] == 0} {
-            array set settings { total_volume 0 filter_change_date "" }
+            array set settings { total_volume 0 filter_change_date "" use_gallons 0 }
         } else {
             if {![info exists settings(filter_change_date)]} {
                 set settings(filter_change_date) ""
+            }
+            if {![info exists settings(use_gallons)]} {
+                set settings(use_gallons) 0
             }
         }
         update_display
