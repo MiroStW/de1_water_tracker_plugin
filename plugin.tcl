@@ -11,7 +11,7 @@ namespace eval ::plugins::${plugin_name} {
 
     proc build_ui {} {
         variable settings
-
+        variable plugin_name
         set page_name "plugin_water_tracker_page_default"
 
         add_de1_page "$page_name" "settings_message.png" "default"
@@ -26,7 +26,7 @@ namespace eval ::plugins::${plugin_name} {
             -borderwidth 1 -bg #fbfaff -foreground #4e85f4 -relief flat \
             -highlightthickness 1 -highlightcolor #000000 \
             -textvariable ::plugins::de1_water_tracker_plugin::settings(filter_change_date) \
-            -label [translate "Filter change date"] -label_pos {1280 700} \
+            -label [translate "Filter Last Changed Date"] -label_pos {1280 700} \
             -label_font Helv_10_bold -label_width 1200 -label_fill "#444444" -label_anchor center
 
         dui add dcheckbox $page_name 1280 860 -tags use_gallons -textvariable ::plugins::de1_water_tracker_plugin::settings(use_gallons) -fill "#444444" \
@@ -40,6 +40,7 @@ namespace eval ::plugins::${plugin_name} {
 
     proc update_display {} {
         variable settings
+        variable plugin_name
         set date_text $settings(filter_change_date)
         if {$date_text eq ""} {
             set date_text [translate "Unknown"]
@@ -51,25 +52,29 @@ namespace eval ::plugins::${plugin_name} {
             set value [expr {$settings(total_volume) / 1000.0}]
             set units "L"
         }
-        set settings(display) [format [translate "Total water used: %.2f %s\nFilter changed: %s"] $value $units $date_text]
+        set settings(filter_change_date) [string trim $settings(filter_change_date)]
+        set settings(display) [format [translate "Total water used: %.2f %s\nFilter last changed: %s"] $value $units $date_text]
     }
 
     proc reset_counter {} {
         variable settings
+        variable plugin_name
         set settings(total_volume) 0
         set settings(filter_change_date) [clock format [clock seconds] -format "%Y-%m-%d"]
-        save_plugin_settings $::plugins::de1_water_tracker_plugin::plugin_name
+        save_plugin_settings $plugin_name
         update_display
         popup [translate "Counter reset"]
     }
 
     proc toggle_units {} {
-        save_plugin_settings $::plugins::de1_water_tracker_plugin::plugin_name
+        variable plugin_name
+        save_plugin_settings $plugin_name
         update_display
     }
 
     proc on_state_change {event_dict} {
         variable settings
+        variable plugin_name
         set this_state [dict get $event_dict this_state]
         set prev_state [dict get $event_dict previous_state]
 
@@ -85,7 +90,7 @@ namespace eval ::plugins::${plugin_name} {
                 Descale -
                 AirPurge {
                     set settings(total_volume) [expr {$settings(total_volume) + $::de1(volume)}]
-                    save_plugin_settings $::plugins::de1_water_tracker_plugin::plugin_name
+                    save_plugin_settings $plugin_name
                     update_display
                 }
             }
@@ -94,6 +99,7 @@ namespace eval ::plugins::${plugin_name} {
 
     proc main {} {
         variable settings
+        variable plugin_name
         if {[array size settings] == 0} {
             array set settings { total_volume 0 filter_change_date "" use_gallons 0 }
         } else {
