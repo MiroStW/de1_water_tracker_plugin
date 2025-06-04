@@ -3,8 +3,8 @@ set plugin_name "water_tracker"
 
 namespace eval ::plugins::${plugin_name} {
 
-    variable author "DE1 User"
-    variable contact ""
+    variable author "Sy_Butter"
+    variable contact "Github"
     variable version 0.1
     variable description "Track total water usage to help schedule filter changes."
     variable name "Water Tracker"
