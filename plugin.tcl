@@ -1,7 +1,7 @@
 set plugin_name "de1_water_tracker_plugin"
 
 namespace eval ::plugins::${plugin_name} {
-
+    variable plugin_name "de1_water_tracker_plugin"
     variable author "Sy_Butter"
     variable contact "Github"
     variable version 0.1
@@ -11,7 +11,6 @@ namespace eval ::plugins::${plugin_name} {
 
     proc build_ui {} {
         variable settings
-        variable plugin_name
         set page_name "plugin_water_tracker_page_default"
 
         add_de1_page "$page_name" "settings_message.png" "default"
@@ -40,7 +39,6 @@ namespace eval ::plugins::${plugin_name} {
 
     proc update_display {} {
         variable settings
-        variable plugin_name
         set date_text $settings(filter_change_date)
         if {$date_text eq ""} {
             set date_text [translate "Unknown"]
@@ -58,7 +56,6 @@ namespace eval ::plugins::${plugin_name} {
 
     proc reset_counter {} {
         variable settings
-        variable plugin_name
         set settings(total_volume) 0
         set settings(filter_change_date) [clock format [clock seconds] -format "%Y-%m-%d"]
         save_plugin_settings $plugin_name
@@ -67,14 +64,12 @@ namespace eval ::plugins::${plugin_name} {
     }
 
     proc toggle_units {} {
-        variable plugin_name
         save_plugin_settings $plugin_name
         update_display
     }
 
     proc on_state_change {event_dict} {
         variable settings
-        variable plugin_name
         set this_state [dict get $event_dict this_state]
         set prev_state [dict get $event_dict previous_state]
 
@@ -99,7 +94,6 @@ namespace eval ::plugins::${plugin_name} {
 
     proc main {} {
         variable settings
-        variable plugin_name
         if {[array size settings] == 0} {
             array set settings { total_volume 0 filter_change_date "" use_gallons 0 }
         } else {
