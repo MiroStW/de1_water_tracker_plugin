@@ -58,13 +58,13 @@ namespace eval ::plugins::${plugin_name} {
         variable settings
         set settings(total_volume) 0
         set settings(filter_change_date) [clock format [clock seconds] -format "%Y-%m-%d"]
-        save_plugin_settings $plugin_name
+        save_plugin_settings $::plugins::de1_water_tracker_plugin::plugin_name
         update_display
         popup [translate "Counter reset"]
     }
 
     proc toggle_units {} {
-        save_plugin_settings $plugin_name
+        save_plugin_settings $::plugins::de1_water_tracker_plugin::plugin_name
         update_display
     }
 
@@ -85,7 +85,7 @@ namespace eval ::plugins::${plugin_name} {
                 Descale -
                 AirPurge {
                     set settings(total_volume) [expr {$settings(total_volume) + $::de1(volume)}]
-                    save_plugin_settings $plugin_name
+                    save_plugin_settings $::plugins::de1_water_tracker_plugin::plugin_name
                     update_display
                 }
             }
