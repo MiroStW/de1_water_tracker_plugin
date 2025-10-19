@@ -1,7 +1,6 @@
 set plugin_name "de1_water_tracker_plugin"
 
 namespace eval ::plugins::${plugin_name} {
-    variable plugin_name "de1_water_tracker_plugin"
     variable author "Sy_Butter"
     variable contact "Github"
     variable version 0.1
