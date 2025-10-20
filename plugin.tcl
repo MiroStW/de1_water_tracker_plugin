@@ -1,4 +1,4 @@
-set plugin_name "de1_water_tracker_plugin"
+set plugin_name "de1_water_tracker"
 
 namespace eval ::plugins::${plugin_name} {
     variable author "Sy_Butter"
@@ -18,20 +18,20 @@ namespace eval ::plugins::${plugin_name} {
 
         add_de1_text $page_name 1280 300 -text [translate "Water Tracker"] -font Helv_20_bold -width 1200 -fill "#444444" -anchor "center" -justify "center"
 
-        add_de1_variable $page_name 1280 600 -font global_font -width 800 -fill "#444444" -anchor "center" -textvariable {$::plugins::de1_water_tracker_plugin::settings(display)}
+        add_de1_variable $page_name 1280 600 -font global_font -width 800 -fill "#444444" -anchor "center" -textvariable {$::plugins::de1_water_tracker::settings(display)}
 
         dui add entry $page_name 1280 760 -tags filter_date -width 12 -font Helv_10 \
             -borderwidth 1 -bg #fbfaff -foreground #4e85f4 -relief flat \
             -highlightthickness 1 -highlightcolor #000000 \
-            -textvariable ::plugins::de1_water_tracker_plugin::settings(filter_change_date) \
+            -textvariable ::plugins::de1_water_tracker::settings(filter_change_date) \
             -label [translate "Filter Last Changed Date"] -label_pos {1280 700} \
             -label_font Helv_10_bold -label_width 1200 -label_fill "#444444" -label_anchor center
 
-        dui add dcheckbox $page_name 1280 860 -tags use_gallons -textvariable ::plugins::de1_water_tracker_plugin::settings(use_gallons) -fill "#444444" \
-            -label [translate "Display in gallons"] -label_font Helv_10_bold -label_fill #4e85f4 -command ::plugins::de1_water_tracker_plugin::toggle_units
+        dui add dcheckbox $page_name 1280 860 -tags use_gallons -textvariable ::plugins::de1_water_tracker::settings(use_gallons) -fill "#444444" \
+            -label [translate "Display in gallons"] -label_font Helv_10_bold -label_fill #4e85f4 -command ::plugins::de1_water_tracker::toggle_units
 
         add_de1_text $page_name 1280 1000 -text [translate "Reset Counter"] -font Helv_10_bold -fill "#4e85f4" -anchor "center"
-        add_de1_button $page_name ::plugins::de1_water_tracker_plugin::reset_counter 980 970 1580 1070 ""
+        add_de1_button $page_name ::plugins::de1_water_tracker::reset_counter 980 970 1580 1070 ""
 
         return $page_name
     }
@@ -57,13 +57,13 @@ namespace eval ::plugins::${plugin_name} {
         variable settings
         set settings(total_volume) 0
         set settings(filter_change_date) [clock format [clock seconds] -format "%Y-%m-%d"]
-        save_plugin_settings de1_water_tracker_plugin
+        save_plugin_settings de1_water_tracker
         update_display
         popup [translate "Counter reset"]
     }
 
     proc toggle_units {} {
-        save_plugin_settings de1_water_tracker_plugin
+        save_plugin_settings de1_water_tracker
         update_display
     }
 
@@ -84,7 +84,7 @@ namespace eval ::plugins::${plugin_name} {
                 Descale -
                 AirPurge {
                     set settings(total_volume) [expr {$settings(total_volume) + $::de1(volume)}]
-                    save_plugin_settings de1_water_tracker_plugin
+                    save_plugin_settings de1_water_tracker
                     update_display
                 }
             }
@@ -104,8 +104,8 @@ namespace eval ::plugins::${plugin_name} {
             }
         }
         update_display
-        ::de1::event::listener::on_major_state_change_add ::plugins::de1_water_tracker_plugin::on_state_change
+        ::de1::event::listener::on_major_state_change_add ::plugins::de1_water_tracker::on_state_change
 
-        plugins gui de1_water_tracker_plugin [build_ui]
+        plugins gui de1_water_tracker [build_ui]
     }
 }
