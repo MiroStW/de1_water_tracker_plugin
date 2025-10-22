@@ -40,6 +40,28 @@ namespace eval ::plugins::${plugin_name} {
         add_de1_text $page_name 1280 1150 -text [translate "Reset Counter"] -font Helv_10_bold -fill "#4e85f4" -anchor "center"
         add_de1_button $page_name ::plugins::de1_water_tracker::reset_counter 980 1120 1580 1220 ""
 
+        # Create custom filter warning page
+        add_de1_page "water_filter_warning" "settings_message.png" "default"
+
+        # Warning message
+        add_de1_text "water_filter_warning" 1280 700 \
+            -text [translate "Time to change your water filter!"] \
+            -font Helv_20_bold -fill "#dd0000" -anchor "center" -justify "center" -width 1200
+
+        # Additional info text
+        add_de1_text "water_filter_warning" 1280 850 \
+            -text [translate "You've reached your set water usage threshold.\nReplace the filter, then reset the counter in plugin settings."] \
+            -font Helv_10 -fill "#666666" -anchor "center" -justify "center" -width 1200
+
+        # Dismiss button
+        add_de1_text "water_filter_warning" 1280 1310 \
+            -text [translate "OK"] \
+            -font Helv_10_bold -fill "#fAfBff" -anchor "center"
+
+        add_de1_button "water_filter_warning" \
+            {say [translate {OK}] $::settings(sound_button_in); page_to_show_when_off off} \
+            980 1210 1580 1410 ""
+
         return $page_name
     }
 
@@ -109,14 +131,9 @@ namespace eval ::plugins::${plugin_name} {
                 set settings(notification_shown) 1
                 save_plugin_settings de1_water_tracker
 
-                # Determine units for notification
-                if {$settings(use_gallons)} {
-                    set threshold_display [format "%.1f gal" [expr {$settings(filter_threshold_ml) / 3785.41}]]
-                } else {
-                    set threshold_display [format "%.1f L" [expr {$settings(filter_threshold_ml) / 1000.0}]]
-                }
-
-                popup [translate "Filter change reminder: You've reached $threshold_display of water usage!"]
+                # Navigate to warning page instead of popup
+                set_next_page off water_filter_warning
+                page_to_show_when_off water_filter_warning
             }
         }
     }
